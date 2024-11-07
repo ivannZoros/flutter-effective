@@ -6,7 +6,8 @@ import 'ActiveButton.dart';
 
 class CoffeeCard extends StatefulWidget {
   final Drink drink;
-  const CoffeeCard({super.key, required this.drink});
+  final VoidCallback onAddToCart;
+  const CoffeeCard({super.key, required this.drink, required this.onAddToCart});
 
   @override
   State<CoffeeCard> createState() => _CoffeeCardState();
@@ -54,6 +55,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
                 setState(() {
                   _isButtonPressed = true;
                 });
+                widget.onAddToCart();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blue,
@@ -66,7 +68,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
                   horizontal: 16,
                 ),
               ),
-              child: Text(widget.drink.price),
+              child: Text("${widget.drink.price} р"),
             ),
         ],
       ),

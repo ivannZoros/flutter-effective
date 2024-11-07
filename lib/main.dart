@@ -1,5 +1,7 @@
+import 'package:empty_project/src/features/menu/widgets/ShoppingCart.dart';
 import 'src/features/menu/models/Section.dart';
 import 'src/features/menu/widgets/CategoryList.dart';
+import 'src/features/menu/widgets/OrderSummarySheet.dart';
 import 'src/features/menu/widgets/StickyHeaderDelegate.dart';
 import 'src/features/menu/widgets/CoffeeCard.dart';
 import 'src/theme/app_colors.dart';
@@ -21,6 +23,8 @@ class _MainAppState extends State<MainApp> {
   final ScrollController _scrollController = ScrollController();
   int _currentCategoryIndex = 0;
   final List<GlobalKey> _sectionKeys = List.generate(4, (_) => GlobalKey());
+  List<Drink> cartItems = [];
+  bool _isOrderSummaryVisible = false;
 
   final List<Section> _sections = [
     Section(title: "Черный кофе", drinks: drinks.sublist(0, 2)),
@@ -28,6 +32,28 @@ class _MainAppState extends State<MainApp> {
     Section(title: "Чай", drinks: drinks.sublist(4, 6)),
     Section(title: "Авторские напитки", drinks: drinks.sublist(6, 8)),
   ];
+
+  void _showOrderSummary() {
+    setState(() {
+      _isOrderSummaryVisible = true;
+    });
+  }
+
+  void _hideOrderSummary() {
+    setState(() {
+      _isOrderSummaryVisible = false;
+    });
+  }
+
+  double calculateTotalCost() {
+    return cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
+  }
+
+  void _addToCart(Drink drink) {
+    setState(() {
+      cartItems.add(drink);
+    });
+  }
 
   @override
   void initState() {
@@ -94,57 +120,76 @@ class _MainAppState extends State<MainApp> {
       home: Scaffold(
         backgroundColor: AppColors.milk,
         body: SafeArea(
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: <Widget>[
-              SliverPersistentHeader(
-                delegate: StickyHeaderDelegate(
-                  height: 80,
-                  child: CategoryList(
-                    selectedIndex: _currentCategoryIndex,
-                    onCategorySelected: _scrollToCategory,
-                  ),
-                ),
-                pinned: true,
-              ),
-              for (int i = 0; i < _sections.length; i++) ...[
-                SliverToBoxAdapter(
-                  key: _sectionKeys[i],
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      _sections[i].title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
-                        fontSize: 32,
+          child: Stack(
+            children: [
+              CustomScrollView(
+                controller: _scrollController,
+                slivers: <Widget>[
+                  SliverPersistentHeader(
+                    delegate: StickyHeaderDelegate(
+                      height: 80,
+                      child: CategoryList(
+                        selectedIndex: _currentCategoryIndex,
+                        onCategorySelected: _scrollToCategory,
                       ),
                     ),
+                    pinned: true,
                   ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.8,
+                  for (int i = 0; i < _sections.length; i++) ...[
+                    SliverToBoxAdapter(
+                      key: _sectionKeys[i],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          _sections[i].title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.black,
+                            fontSize: 32,
+                          ),
+                        ),
+                      ),
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, drinkIndex) {
-                        final drink = _sections[i].drinks[drinkIndex];
-                        return CoffeeCard(drink: drink);
-                      },
-                      childCount: _sections[i].drinks.length,
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.8,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, drinkIndex) {
+                            final drink = _sections[i].drinks[drinkIndex];
+                            return CoffeeCard(
+                                drink: drink,
+                                onAddToCart: () => _addToCart(drink));
+                          },
+                          childCount: _sections[i].drinks.length,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
+                ],
+              ),
+              Visibility(
+                visible: _isOrderSummaryVisible,
+                child: OrderSummarySheet(
+                  cartItems: cartItems,
+                  onClose: _hideOrderSummary,
                 ),
-              ],
+              ),
             ],
           ),
         ),
+        floatingActionButton: cartItems.isNotEmpty
+            ? ShoppingCart(
+                totalCost: calculateTotalCost(),
+                onPressed: _showOrderSummary,
+              )
+            : null,
       ),
     );
   }
