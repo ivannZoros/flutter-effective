@@ -1,10 +1,17 @@
-import 'package:empty_project/src/features/menu/models/Drink.dart';
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 
 class ActiveButton extends StatefulWidget {
-  const ActiveButton({super.key, required this.onRemove});
   final Function() onRemove;
+  final Function(int) plusCup;
+  final Function(int) minusCup;
+
+  const ActiveButton({
+    super.key,
+    required this.onRemove,
+    required this.plusCup,
+    required this.minusCup,
+  });
 
   @override
   State<ActiveButton> createState() => _ActiveButtonState();
@@ -28,8 +35,10 @@ class _ActiveButtonState extends State<ActiveButton> {
                   setState(() {
                     if (_cupCounter > 1) {
                       _cupCounter--;
+                      widget.minusCup(_cupCounter);
                     } else {
                       widget.onRemove();
+                      widget.minusCup(_cupCounter);
                     }
                   });
                 },
@@ -74,6 +83,7 @@ class _ActiveButtonState extends State<ActiveButton> {
                 setState(() {
                   if (_cupCounter < 10) {
                     _cupCounter++;
+                    widget.plusCup(_cupCounter);
                   }
                 });
               },

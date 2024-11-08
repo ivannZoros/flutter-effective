@@ -39,6 +39,18 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
+  void _removeFromCart(Drink drink) {
+    setState(() {
+      cartItems.remove(drink);
+    });
+  }
+
+  void _clearCart() {
+    setState(() {
+      cartItems.clear();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -149,7 +161,9 @@ class _MenuScreenState extends State<MenuScreen> {
                             final drink = _sections[i].drinks[drinkIndex];
                             return CoffeeCard(
                                 drink: drink,
-                                onAddToCart: () => _addToCart(drink));
+                                onAddToCart: () => _addToCart(drink),
+                                plusCup: (q) => _addToCart(drink),
+                                minusCup: (q) => _removeFromCart(drink));
                           },
                           childCount: _sections[i].drinks.length,
                         ),
@@ -175,6 +189,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             Navigator.pop(context);
                             setState(() {});
                           },
+                          onClearCart: _clearCart,
                         ),
                       );
                     },
