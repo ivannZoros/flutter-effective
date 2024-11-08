@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
-import '../models/Drink.dart';
-import 'ActiveButton.dart';
+import '../models/drink.dart';
+import 'active_button.dart';
 
 class CoffeeCard extends StatefulWidget {
   final Drink drink;
@@ -54,8 +54,8 @@ class _CoffeeCardState extends State<CoffeeCard> {
               onPressed: () {
                 setState(() {
                   _isButtonPressed = true;
+                  widget.onAddToCart();
                 });
-                widget.onAddToCart();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blue,

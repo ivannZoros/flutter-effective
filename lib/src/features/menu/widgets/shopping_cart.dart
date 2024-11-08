@@ -22,7 +22,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
       ),
       label: Text(
         "${widget.totalCost} ₽",
-        style: TextStyle(color: AppColors.white),
+        style: const TextStyle(color: AppColors.white),
       ),
       backgroundColor: AppColors.blue,
     );
