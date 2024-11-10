@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../theme/app_colors.dart';
 import 'models/drink.dart';
@@ -19,14 +20,14 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   final ScrollController _scrollController = ScrollController();
   int _currentCategoryIndex = 0;
-  final List<GlobalKey> _sectionKeys = List.generate(4, (_) => GlobalKey());
+  List<GlobalKey> _sectionKeys = [];
   List<Drink> cartItems = [];
 
   final List<Section> _sections = [
-    Section(title: "Черный кофе", drinks: drinks.sublist(0, 2)),
-    Section(title: "Кофе с молоком", drinks: drinks.sublist(2, 4)),
-    Section(title: "Чай", drinks: drinks.sublist(4, 6)),
-    Section(title: "Авторские напитки", drinks: drinks.sublist(6, 8)),
+    Section(title: "Черный кофе", drinks: drinks.sublist(0, 6)),
+    Section(title: "Кофе с молоком", drinks: drinks.sublist(6, 12)),
+    Section(title: "Чай", drinks: drinks.sublist(12, 18)),
+    Section(title: "Авторские напитки", drinks: drinks.sublist(18, 24)),
   ];
 
   double calculateTotalCost() {
@@ -35,13 +36,33 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _addToCart(Drink drink) {
     setState(() {
-      cartItems.add(drink);
+      bool found = false;
+      for (var item in cartItems) {
+        if (item.id == drink.id) {
+          item.quantity++;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        drink.quantity = 1;
+        cartItems.add(drink);
+      }
     });
   }
 
   void _removeFromCart(Drink drink) {
     setState(() {
-      cartItems.remove(drink);
+      for (var item in cartItems) {
+        if (item.id == drink.id) {
+          if (item.quantity > 0) {
+            item.quantity--;
+          } else {
+            cartItems.remove(item);
+          }
+          break;
+        }
+      }
     });
   }
 
@@ -54,31 +75,41 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_updateActiveCategory);
+    _sectionKeys = List.generate(_sections.length, (_) => GlobalKey());
+
+    _scrollController.addListener(() {
+      _updateActiveCategory();
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
+    _scrollController.removeListener(() {
+      _updateActiveCategory();
+    });
+    _scrollController.dispose();
   }
 
   void _updateActiveCategory() {
-    double currentPosition = _scrollController.position.pixels;
     int newActiveIndex = _currentCategoryIndex;
 
     for (int i = 0; i < _sectionKeys.length; i++) {
       final context = _sectionKeys[i].currentContext;
-      if (context != null) {
-        final renderObject = context.findRenderObject();
-        if (renderObject is RenderBox) {
-          final position = renderObject.localToGlobal(Offset.zero).dy;
-          final sectionHeight = renderObject.size.height;
 
-          if (position < currentPosition + MediaQuery.of(context).size.height &&
-              position + sectionHeight > currentPosition) {
-            newActiveIndex = i;
-            break;
+      if (context != null) {
+        final RenderObject renderObject = context.findRenderObject()!;
+
+        if (renderObject is RenderSliverToBoxAdapter) {
+          final renderBox = renderObject.child;
+
+          if (renderBox is RenderBox) {
+            final position = renderBox.localToGlobal(Offset.zero).dy;
+
+            if (position <= 80.0 + 1.0 && position >= -1.0) {
+              newActiveIndex = i;
+              break;
+            }
           }
         }
       }
@@ -181,15 +212,22 @@ class _MenuScreenState extends State<MenuScreen> {
                 onPressed: () {
                   showModalBottomSheet<void>(
                     context: context,
+                    isScrollControlled: true,
                     builder: (BuildContext context) {
                       return Material(
-                        child: OrderSummarySheet(
-                          cartItems: cartItems,
-                          onClose: () {
-                            Navigator.pop(context);
-                            setState(() {});
-                          },
-                          onClearCart: _clearCart,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                MediaQuery.of(context).size.height * 0.90,
+                          ),
+                          child: OrderSummarySheet(
+                            cartItems: cartItems,
+                            onClose: () {
+                              Navigator.pop(context);
+                              setState(() {});
+                            },
+                            onClearCart: _clearCart,
+                          ),
                         ),
                       );
                     },

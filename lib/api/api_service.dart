@@ -9,26 +9,28 @@ class ApiService {
 
     final orderData = {
       "positions": {
-        for (var item in cartItems) item.name: item.quantity,
+        for (var item in cartItems) item.id: item.quantity,
       },
       "token": fcmToken,
     };
+    print(orderData);
 
     try {
       final response = await dio.post(
         'https://coffeeshop.academy.effective.band/api/v1/orders',
         data: orderData,
       );
-      if (response.statusCode == 200) {
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
         cartItems.clear();
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Заказ оформлен успешно!')),
+          const SnackBar(content: Text('Заказ создан')),
         );
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка при оформлении заказа')),
+        const SnackBar(content: Text('Возникла ошибка при заказе')),
       );
     }
   }

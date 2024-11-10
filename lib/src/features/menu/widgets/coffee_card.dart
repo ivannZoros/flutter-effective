@@ -9,6 +9,7 @@ class CoffeeCard extends StatefulWidget {
   final VoidCallback onAddToCart;
   final Function(int) plusCup;
   final Function(int) minusCup;
+
   const CoffeeCard(
       {super.key,
       required this.drink,
@@ -47,12 +48,12 @@ class _CoffeeCardState extends State<CoffeeCard> {
             height: 100,
             fit: BoxFit.contain,
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 5),
+          const SizedBox(
+            height: 5,
           ),
           Text(widget.drink.name),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 5),
+          const SizedBox(
+            height: 5,
           ),
           if (_isButtonPressed)
             ActiveButton(

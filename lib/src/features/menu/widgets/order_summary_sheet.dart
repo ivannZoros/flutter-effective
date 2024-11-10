@@ -16,8 +16,19 @@ class OrderSummarySheet extends StatelessWidget {
     required this.onClearCart,
   });
 
+  List<Drink> _generateCartItemsList(List<Drink> cartItems) {
+    List<Drink> expandedList = [];
+    for (var item in cartItems) {
+      for (int i = 0; i < item.quantity; i++) {
+        expandedList.add(item);
+      }
+    }
+    return expandedList;
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Drink> expandedCartItems = _generateCartItemsList(cartItems);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -51,9 +62,9 @@ class OrderSummarySheet extends StatelessWidget {
               const Divider(),
               Expanded(
                 child: ListView.builder(
-                  itemCount: cartItems.length,
+                  itemCount: expandedCartItems.length,
                   itemBuilder: (context, index) {
-                    final item = cartItems[index];
+                    final item = expandedCartItems[index];
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -73,6 +84,10 @@ class OrderSummarySheet extends StatelessWidget {
                         ),
                         Text(
                           "${item.price} ₽",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     );
