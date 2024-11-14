@@ -1,4 +1,5 @@
 import 'package:empty_project/src/theme/app_colors.dart';
+import 'package:empty_project/src/theme/image_sources.dart';
 import 'package:flutter/material.dart';
 
 class ShoppingCart extends StatefulWidget {
@@ -9,7 +10,7 @@ class ShoppingCart extends StatefulWidget {
       {super.key, required this.totalCost, required this.onPressed});
 
   @override
-  _ShoppingCartState createState() => _ShoppingCartState();
+  State<ShoppingCart> createState() => _ShoppingCartState();
 }
 
 class _ShoppingCartState extends State<ShoppingCart> {
@@ -18,7 +19,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
     return FloatingActionButton.extended(
       onPressed: widget.onPressed,
       icon: Image.asset(
-        'assets/ShoppingCart.png',
+        ImageSources.ImgShoppingCart,
       ),
       label: Text(
         "${widget.totalCost} ₽",

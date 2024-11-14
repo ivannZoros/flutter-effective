@@ -22,16 +22,15 @@ class CoffeeCard extends StatefulWidget {
 }
 
 class _CoffeeCardState extends State<CoffeeCard> {
-  bool _isButtonPressed = false;
-
-  void _handleRemove() {
-    setState(() {
-      _isButtonPressed = false;
-    });
-  }
+  // void _handleRemove() {
+  //   setState(() {
+  //     _isButtonPressed = false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
+    bool isButtonPressed = widget.drink.quantity > 0;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -43,7 +42,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
           const SizedBox(
             height: 10,
           ),
-          Image.asset(
+          Image.network(
             widget.drink.imagePath,
             height: 100,
             fit: BoxFit.contain,
@@ -55,9 +54,13 @@ class _CoffeeCardState extends State<CoffeeCard> {
           const SizedBox(
             height: 5,
           ),
-          if (_isButtonPressed)
+          if (isButtonPressed)
             ActiveButton(
-              onRemove: _handleRemove,
+              onRemove: () {
+                setState(() {
+                  widget.minusCup(0);
+                });
+              },
               plusCup: (quantity) => widget.plusCup(quantity),
               minusCup: (quantity) => widget.minusCup(quantity),
             )
@@ -65,7 +68,7 @@ class _CoffeeCardState extends State<CoffeeCard> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  _isButtonPressed = true;
+                  isButtonPressed = true;
                 });
                 widget.onAddToCart();
               },

@@ -5,12 +5,14 @@ class ActiveButton extends StatefulWidget {
   final Function() onRemove;
   final Function(int) plusCup;
   final Function(int) minusCup;
+  final int initialQuntity;
 
   const ActiveButton({
     super.key,
     required this.onRemove,
     required this.plusCup,
     required this.minusCup,
+    this.initialQuntity = 1,
   });
 
   @override
@@ -18,7 +20,13 @@ class ActiveButton extends StatefulWidget {
 }
 
 class _ActiveButtonState extends State<ActiveButton> {
-  int _cupCounter = 1;
+  late int _cupCounter = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _cupCounter = widget.initialQuntity;
+  }
 
   @override
   Widget build(BuildContext context) {

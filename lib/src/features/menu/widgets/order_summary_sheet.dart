@@ -1,5 +1,7 @@
 import 'package:empty_project/src/features/menu/models/drink.dart';
 import 'package:empty_project/src/theme/app_colors.dart';
+import 'package:empty_project/src/theme/image_sources.dart';
+import 'package:empty_project/src/theme/text_sources.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../api/api_service.dart';
@@ -30,7 +32,7 @@ class OrderSummarySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Drink> expandedCartItems = _generateCartItemsList(cartItems);
     return Scaffold(
-      body: Container(
+      body: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -44,7 +46,7 @@ class OrderSummarySheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Ваш заказ',
+                    TextSources.yourOrder,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,
@@ -56,7 +58,7 @@ class OrderSummarySheet extends StatelessWidget {
                         onClose();
                         onClearCart();
                       },
-                      icon: Image.asset('assets/delete.png'))
+                      icon: Image.asset(ImageSources.imgDelete))
                 ],
               ),
               const Divider(),
@@ -70,7 +72,7 @@ class OrderSummarySheet extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Image.asset(
+                            Image.network(
                               item.imagePath,
                               height: 55,
                               width: 55,
@@ -109,7 +111,7 @@ class OrderSummarySheet extends StatelessWidget {
                   child: const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
-                      "Оформить заказ",
+                      TextSources.placeOrder,
                       style: TextStyle(fontSize: 20, color: AppColors.white),
                       textAlign: TextAlign.center,
                     ),

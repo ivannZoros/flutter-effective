@@ -2,7 +2,7 @@ import 'drink.dart';
 
 class Section {
   final String title;
-  final List<Drink> drinks;
+  List<Drink> drinks;
 
   Section({
     required this.title,

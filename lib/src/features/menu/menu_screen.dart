@@ -1,5 +1,10 @@
+import 'dart:developer';
+
+import 'package:empty_project/api/api_service.dart';
+import 'package:empty_project/src/features/menu/block/drinks_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../theme/app_colors.dart';
 import 'models/drink.dart';
@@ -22,13 +27,33 @@ class _MenuScreenState extends State<MenuScreen> {
   int _currentCategoryIndex = 0;
   List<GlobalKey> _sectionKeys = [];
   List<Drink> cartItems = [];
+  List<Section> _sections = [];
 
-  final List<Section> _sections = [
-    Section(title: "Черный кофе", drinks: drinks.sublist(0, 6)),
-    Section(title: "Кофе с молоком", drinks: drinks.sublist(6, 12)),
-    Section(title: "Чай", drinks: drinks.sublist(12, 18)),
-    Section(title: "Авторские напитки", drinks: drinks.sublist(18, 24)),
-  ];
+  Future<void> _loadDrinks() async {
+    final drinks = await ApiService().getDrinks();
+
+    setState(() {
+      List<Drink> blackCoffeeDrinks =
+          drinks.where((drink) => drink.slug == "Черный кофе").toList();
+      List<Drink> milkCoffeeDrinks =
+          drinks.where((drink) => drink.slug == "Кофе с молоком").toList();
+      List<Drink> teaDrinks =
+          drinks.where((drink) => drink.slug == "Чай").toList();
+      List<Drink> authorDrinks = drinks
+          .where((drink) =>
+              drink.slug != "Чай" &&
+              drink.slug != "Кофе с молоком" &&
+              drink.slug != "Черный кофе")
+          .toList();
+      _sections = [
+        Section(title: "Черный кофе", drinks: blackCoffeeDrinks),
+        Section(title: "Кофе с молоком", drinks: milkCoffeeDrinks),
+        Section(title: "Чай", drinks: teaDrinks),
+        Section(title: "Авторские напитки", drinks: authorDrinks),
+      ];
+      _sectionKeys = List.generate(_sections.length, (_) => GlobalKey());
+    });
+  }
 
   double calculateTotalCost() {
     return cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
@@ -36,15 +61,9 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _addToCart(Drink drink) {
     setState(() {
-      bool found = false;
-      for (var item in cartItems) {
-        if (item.id == drink.id) {
-          item.quantity++;
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
+      if (drink.quantity > 0) {
+        drink.quantity++;
+      } else {
         drink.quantity = 1;
         cartItems.add(drink);
       }
@@ -53,15 +72,11 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _removeFromCart(Drink drink) {
     setState(() {
-      for (var item in cartItems) {
-        if (item.id == drink.id) {
-          if (item.quantity > 0) {
-            item.quantity--;
-          } else {
-            cartItems.remove(item);
-          }
-          break;
-        }
+      if (drink.quantity > 1) {
+        drink.quantity--;
+      } else {
+        drink.quantity = 0;
+        cartItems.remove(drink);
       }
     });
   }
@@ -75,7 +90,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
-    _sectionKeys = List.generate(_sections.length, (_) => GlobalKey());
+    _loadDrinks();
 
     _scrollController.addListener(() {
       _updateActiveCategory();
@@ -142,69 +157,83 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return BlocProvider(
+      create: (context) =>
+          DrinksListBloc(apiService: ApiService())..add(LoadDrinksList()),
+      child: Scaffold(
         backgroundColor: AppColors.milk,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                slivers: <Widget>[
-                  SliverPersistentHeader(
-                    delegate: StickyHeaderDelegate(
-                      height: 80,
-                      child: CategoryList(
-                        selectedIndex: _currentCategoryIndex,
-                        onCategorySelected: _scrollToCategory,
-                      ),
-                    ),
-                    pinned: true,
-                  ),
-                  for (int i = 0; i < _sections.length; i++) ...[
-                    SliverToBoxAdapter(
-                      key: _sectionKeys[i],
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          _sections[i].title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black,
-                            fontSize: 32,
+        body: BlocBuilder<DrinksListBloc, DrinksListState>(
+          builder: (context, state) {
+            if (state is DrinksListLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is DrinksListLoaded) {
+              _loadDrinks();
+              return SafeArea(
+                child: Stack(
+                  children: [
+                    CustomScrollView(
+                      controller: _scrollController,
+                      slivers: <Widget>[
+                        SliverPersistentHeader(
+                          delegate: StickyHeaderDelegate(
+                            height: 80,
+                            child: CategoryList(
+                              selectedIndex: _currentCategoryIndex,
+                              onCategorySelected: _scrollToCategory,
+                            ),
                           ),
+                          pinned: true,
                         ),
-                      ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 0.8,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, drinkIndex) {
-                            final drink = _sections[i].drinks[drinkIndex];
-                            return CoffeeCard(
-                                drink: drink,
-                                onAddToCart: () => _addToCart(drink),
-                                plusCup: (q) => _addToCart(drink),
-                                minusCup: (q) => _removeFromCart(drink));
-                          },
-                          childCount: _sections[i].drinks.length,
-                        ),
-                      ),
+                        for (int i = 0; i < _sections.length; i++) ...[
+                          SliverToBoxAdapter(
+                            key: _sectionKeys[i],
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                _sections[i].title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black,
+                                  fontSize: 32,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            sliver: SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 0.8,
+                              ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, drinkIndex) {
+                                  final drink = _sections[i].drinks[drinkIndex];
+                                  return CoffeeCard(
+                                    drink: drink,
+                                    onAddToCart: () => _addToCart(drink),
+                                    plusCup: (q) => _addToCart(drink),
+                                    minusCup: (q) => _removeFromCart(drink),
+                                  );
+                                },
+                                childCount: _sections[i].drinks.length,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
-                ],
-              ),
-            ],
-          ),
+                ),
+              );
+            } else if (state is DrinksListError) {
+              return Center(child: Text(state.message));
+            }
+            return const SizedBox.shrink();
+          },
         ),
         floatingActionButton: cartItems.isNotEmpty
             ? ShoppingCart(
