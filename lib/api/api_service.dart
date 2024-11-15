@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:empty_project/src/theme/image_sources.dart';
 import 'package:flutter/material.dart';
 import '../src/features/menu/models/drink.dart';
 import '../src/theme/text_sources.dart';
@@ -75,7 +76,7 @@ class ApiService {
     return Drink(
         name: json['name'] ?? 'Неизвестно',
         price: price,
-        imagePath: json['imageUrl'] ?? Icons.error,
+        imagePath: json['imageUrl'] ?? ImageSources.latte,
         id: json['id'],
         slug: json['category']?['slug']);
   }

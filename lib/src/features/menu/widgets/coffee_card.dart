@@ -22,12 +22,6 @@ class CoffeeCard extends StatefulWidget {
 }
 
 class _CoffeeCardState extends State<CoffeeCard> {
-  // void _handleRemove() {
-  //   setState(() {
-  //     _isButtonPressed = false;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     bool isButtonPressed = widget.drink.quantity > 0;

@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:empty_project/api/api_service.dart';
 import 'package:empty_project/src/features/menu/block/drinks_list_bloc.dart';
+import 'package:empty_project/src/features/menu/block/order_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,6 +66,7 @@ class _MenuScreenState extends State<MenuScreen> {
         drink.quantity = 1;
         cartItems.add(drink);
       }
+      _sections = List.from(_sections);
     });
   }
 
@@ -243,19 +243,22 @@ class _MenuScreenState extends State<MenuScreen> {
                     context: context,
                     isScrollControlled: true,
                     builder: (BuildContext context) {
-                      return Material(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight:
-                                MediaQuery.of(context).size.height * 0.90,
-                          ),
-                          child: OrderSummarySheet(
-                            cartItems: cartItems,
-                            onClose: () {
-                              Navigator.pop(context);
-                              setState(() {});
-                            },
-                            onClearCart: _clearCart,
+                      return BlocProvider.value(
+                        value: context.read<OrderBloc>(),
+                        child: Material(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.90,
+                            ),
+                            child: OrderSummarySheet(
+                              cartItems: cartItems,
+                              onClose: () {
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                              onClearCart: _clearCart,
+                            ),
                           ),
                         ),
                       );

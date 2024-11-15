@@ -19,7 +19,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
     return FloatingActionButton.extended(
       onPressed: widget.onPressed,
       icon: Image.asset(
-        ImageSources.ImgShoppingCart,
+        ImageSources.imgShoppingCart,
       ),
       label: Text(
         "${widget.totalCost} ₽",
