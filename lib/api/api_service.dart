@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:empty_project/src/theme/image_sources.dart';
 import 'package:flutter/material.dart';
 import '../src/features/menu/models/drink.dart';
 import '../src/theme/text_sources.dart';
 
 class ApiService {
+  final Dio _dio;
+  ApiService(this._dio);
+
   Future<void> placeOrder(
       List<Drink> cartItems, String fcmToken, BuildContext context) async {
-    var dio = Dio();
-
     var orderData = {
       "positions": {
         for (var item in cartItems) item.id.toString(): item.quantity,
@@ -17,7 +17,7 @@ class ApiService {
     };
 
     try {
-      var response = await dio.post(
+      var response = await _dio.post(
         'https://coffeeshop.academy.effective.band/api/v1/orders',
         data: orderData,
       );
@@ -53,31 +53,5 @@ class ApiService {
         );
       }
     }
-  }
-
-  Future<List<Drink>> getDrinks() async {
-    try {
-      final response = await Dio().get(
-          'https://coffeeshop.academy.effective.band/api/v1/products/?page=0&limit=24');
-      if (response.statusCode == 200) {
-        List<dynamic> data = response.data['data'];
-        List<Drink> drinks = data.map((json) => parseDrink(json)).toList();
-        return drinks;
-      } else {
-        throw Exception("Cant parse drinks");
-      }
-    } catch (error) {
-      return [];
-    }
-  }
-
-  Drink parseDrink(Map<String, dynamic> json) {
-    double price = double.tryParse(json['prices']?[0]?['value'] ?? '0') ?? 0.0;
-    return Drink(
-        name: json['name'] ?? 'Неизвестно',
-        price: price,
-        imagePath: json['imageUrl'] ?? ImageSources.latte,
-        id: json['id'],
-        slug: json['category']?['slug']);
   }
 }

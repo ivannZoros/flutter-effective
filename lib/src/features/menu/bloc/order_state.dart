@@ -1,6 +1,6 @@
 part of 'order_bloc.dart';
 
-class OrderState extends Equatable {
+sealed class OrderState extends Equatable {
   const OrderState();
 
   @override

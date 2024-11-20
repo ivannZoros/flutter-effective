@@ -9,13 +9,13 @@ part 'order_event.dart';
 part 'order_state.dart';
 
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
-  final ApiService apiService;
+  final ApiService _apiService;
 
-  OrderBloc({required this.apiService}) : super(OrderInitial()) {
+  OrderBloc(this._apiService) : super(OrderInitial()) {
     on<PlaceOrderEvent>((event, emit) async {
       emit(OrderLoading());
       try {
-        await apiService.placeOrder(
+        await _apiService.placeOrder(
             event.cartItems, event.fcmToken, event.context);
         emit(OrderLoaded());
       } catch (error) {

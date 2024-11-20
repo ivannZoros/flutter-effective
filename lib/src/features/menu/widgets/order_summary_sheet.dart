@@ -5,18 +5,19 @@ import 'package:empty_project/src/theme/text_sources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../block/order_bloc.dart';
+import '../bloc/drinks_list_bloc.dart';
+import '../bloc/order_bloc.dart';
 
 class OrderSummarySheet extends StatelessWidget {
   final List<Drink> cartItems;
   final VoidCallback onClose;
-  final VoidCallback onClearCart;
+  final DrinksListBloc drinksListBloc;
 
   const OrderSummarySheet({
     super.key,
     required this.cartItems,
     required this.onClose,
-    required this.onClearCart,
+    required this.drinksListBloc,
   });
 
   List<Drink> _generateCartItemsList(List<Drink> cartItems) {
@@ -39,7 +40,7 @@ class OrderSummarySheet extends StatelessWidget {
             showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (_) => const Center(child: CircularProgressIndicator()),
+              builder: (_) => const SizedBox.shrink(),
             );
           } else if (state is OrderLoaded) {
             Navigator.pop(context);
@@ -76,7 +77,8 @@ class OrderSummarySheet extends StatelessWidget {
                     IconButton(
                         onPressed: () {
                           onClose();
-                          onClearCart();
+                          // onClearCart();
+                          drinksListBloc.add(ClearCart());
                         },
                         icon: Image.asset(ImageSources.imgDelete))
                   ],
