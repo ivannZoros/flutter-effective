@@ -11,7 +11,7 @@ class DrinkRepository {
   Future<List<Drink>> getDrinks(int page, int limit) async {
     try {
       final networkDrinks = await _drinkDataSource.getDrinks(page, limit);
-      print("Clearing drinks..."); //
+
       await _appDb.clearDrinks();
       await _appDb.insertDrinks(networkDrinks
           .map((drink) => DrinkData(
@@ -22,10 +22,6 @@ class DrinkRepository {
               price: drink.price))
           .toList());
 
-      print("Reading drinks from DB..."); //
-      final insertedDrinks = await _appDb.getDrinksForPage(page, limit); //
-      print("Inserted drinks from DB: $insertedDrinks"); //
-
       return networkDrinks;
     } catch (e) {
       final dbDrinks = await _appDb.getDrinksForPage(page, limit);
@@ -33,7 +29,7 @@ class DrinkRepository {
           .map((drinkData) => Drink(
                 id: drinkData.id,
                 name: drinkData.name,
-                slug: drinkData.slug ?? '',
+                slug: drinkData.slug,
                 imagePath: drinkData.imagePath,
                 price: drinkData.price,
               ))

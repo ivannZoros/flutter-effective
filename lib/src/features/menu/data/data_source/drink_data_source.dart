@@ -31,7 +31,7 @@ class DrinkDataSource {
       price: price,
       imagePath: json['imageUrl'] ?? 'assets/latte.png',
       id: json['id'],
-      slug: json['category']?['slug'] ?? '',
+      slug: json['category']?['slug'] ?? 'Неизвестно',
     );
   }
 }

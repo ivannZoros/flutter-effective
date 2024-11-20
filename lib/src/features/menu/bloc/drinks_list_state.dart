@@ -50,3 +50,5 @@ class DrinksListError extends DrinksListState {
   @override
   List<Object> get props => [message];
 }
+
+class OrderPlaced extends DrinksListEvent {}

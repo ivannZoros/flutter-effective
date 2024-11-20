@@ -12,7 +12,6 @@ class DrinksListBloc extends Bloc<DrinksListEvent, DrinksListState> {
 
   DrinksListBloc(this._drinkRepository) : super(DrinksListInitial()) {
     on<LoadDrinksList>((event, emit) async {
-      print("LoadDrinksList triggered"); //
       emit(DrinksListLoading());
 
       try {
@@ -26,12 +25,12 @@ class DrinksListBloc extends Bloc<DrinksListEvent, DrinksListState> {
           }
         }
         emit(DrinksListLoaded(
-            drinks: drinks,
-            sections: sections,
-            cartItems: [],
-            totalCost: calculatedTotalCost));
+          drinks: drinks,
+          sections: sections,
+          cartItems: [],
+          totalCost: calculatedTotalCost,
+        ));
       } catch (error) {
-        print("Error fetching drinks: $error"); //
         emit(DrinksListError(error.toString()));
       }
     });
@@ -105,10 +104,21 @@ class DrinksListBloc extends Bloc<DrinksListEvent, DrinksListState> {
         emit(currentState.copyWith(cartItems: []));
       }
     });
+
+    on<OrderPlaced>((event, emit) {
+      if (state is DrinksListLoaded) {
+        final currentState = state as DrinksListLoaded;
+        final updatedDrinks = currentState.drinks
+            .map((drink) => drink.copyWith(quantity: 0))
+            .toList();
+        emit(currentState.copyWith(cartItems: [], drinks: updatedDrinks));
+      }
+    });
   }
 
   Future<List<Section>> _createSections(List<Drink> drinks) async {
     final Map<String, List<Drink>> drinksByCategory = {};
+
     for (final drink in drinks) {
       drinksByCategory.putIfAbsent(drink.slug, () => []).add(drink);
     }

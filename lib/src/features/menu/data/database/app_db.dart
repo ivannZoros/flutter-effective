@@ -34,9 +34,6 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'db.sqlite'));
-    final exists = await file.exists();
-    print("Database file exists: $exists"); //
-    print(file);
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase(file);
   });
 }

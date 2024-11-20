@@ -26,7 +26,7 @@ class CoffeeCard extends StatelessWidget {
             : drink;
 
         return Container(
-          key: ValueKey(updatedDrink.quantity),
+          key: ValueKey(updatedDrink.id),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(16),
@@ -49,10 +49,7 @@ class CoffeeCard extends StatelessWidget {
                 )
               else
                 ElevatedButton(
-                  onPressed: () {
-                    context.read<DrinksListBloc>().add(AddToCart(drink));
-                    onAddToCart();
-                  },
+                  onPressed: drink.quantity == 0 ? onAddToCart : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue,
                     foregroundColor: AppColors.white,

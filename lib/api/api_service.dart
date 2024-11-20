@@ -24,13 +24,6 @@ class ApiService {
       if (response.statusCode == 201) {
         cartItems.clear();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(TextSources.orderPlaced),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          await Future.delayed(const Duration(seconds: 2));
           Navigator.pop(context);
         }
       } else {
