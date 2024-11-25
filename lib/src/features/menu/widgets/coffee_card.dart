@@ -24,7 +24,6 @@ class CoffeeCard extends StatelessWidget {
             ? state.drinks
                 .firstWhere((d) => d.id == drink.id, orElse: () => drink)
             : drink;
-
         return Container(
           key: ValueKey(updatedDrink.id),
           decoration: BoxDecoration(
@@ -43,9 +42,9 @@ class CoffeeCard extends StatelessWidget {
               const SizedBox(height: 5),
               Text(drink.name),
               const SizedBox(height: 5),
-              if (drink.quantity > 0)
+              if (updatedDrink.quantity > 0)
                 ActiveButton(
-                  drink: drink,
+                  drink: updatedDrink,
                 )
               else
                 ElevatedButton(

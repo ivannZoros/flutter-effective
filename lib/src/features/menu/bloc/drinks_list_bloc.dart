@@ -38,27 +38,32 @@ class DrinksListBloc extends Bloc<DrinksListEvent, DrinksListState> {
     on<AddToCart>((event, emit) {
       if (state is DrinksListLoaded) {
         final currentState = state as DrinksListLoaded;
-        final updatedDrinks = currentState.drinks.map((drink) {
-          if (drink.id == event.drink.id) {
-            final newQuantity = drink.quantity + 1;
-            return drink.copyWith(
-                quantity: newQuantity <= 10 ? newQuantity : 10);
+        final drink =
+            currentState.drinks.firstWhere((d) => d.id == event.drink.id);
+        if (drink.quantity < 10) {
+          final updatedDrinks = currentState.drinks.map((drink) {
+            if (drink.id == event.drink.id) {
+              final newQuantity = drink.quantity + 1;
+              return drink.copyWith(
+                  quantity: newQuantity <= 10 ? newQuantity : 10);
+            }
+            return drink;
+          }).toList();
+
+          final updatedCartItems = [...currentState.cartItems];
+          final cartItemIndex =
+              updatedCartItems.indexWhere((d) => d.id == event.drink.id);
+
+          if (cartItemIndex == -1) {
+            updatedCartItems.add(event.drink.copyWith(quantity: 1));
+          } else {
+            updatedCartItems[cartItemIndex] = updatedCartItems[cartItemIndex]
+                .copyWith(
+                    quantity: updatedCartItems[cartItemIndex].quantity + 1);
           }
-          return drink;
-        }).toList();
-
-        final updatedCartItems = [...currentState.cartItems];
-        final cartItemIndex =
-            updatedCartItems.indexWhere((d) => d.id == event.drink.id);
-
-        if (cartItemIndex == -1) {
-          updatedCartItems.add(event.drink.copyWith(quantity: 1));
-        } else {
-          updatedCartItems[cartItemIndex] = updatedCartItems[cartItemIndex]
-              .copyWith(quantity: updatedCartItems[cartItemIndex].quantity + 1);
+          emit(currentState.copyWith(
+              drinks: updatedDrinks, cartItems: updatedCartItems));
         }
-        emit(currentState.copyWith(
-            drinks: updatedDrinks, cartItems: updatedCartItems));
       }
     });
 

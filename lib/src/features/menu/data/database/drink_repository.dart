@@ -11,7 +11,6 @@ class DrinkRepository {
   Future<List<Drink>> getDrinks(int page, int limit) async {
     try {
       final networkDrinks = await _drinkDataSource.getDrinks(page, limit);
-
       await _appDb.clearDrinks();
       await _appDb.insertDrinks(networkDrinks
           .map((drink) => DrinkData(
