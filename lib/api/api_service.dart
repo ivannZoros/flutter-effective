@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:empty_project/src/features/menu/models/location.dart';
 import 'package:flutter/material.dart';
 import '../src/features/menu/models/drink.dart';
 import '../src/theme/text_sources.dart';
@@ -45,6 +46,16 @@ class ApiService {
           ),
         );
       }
+    }
+  }
+
+  Future<List<Location>> getLocation() async {
+    try {
+      var response = await _dio.get(
+          'https://coffeeshop.academy.effective.band/api/v1/locations/?page=0&limit=25');
+      if (response.data == 200) {}
+    } catch (e) {
+      throw Exception("Error");
     }
   }
 }

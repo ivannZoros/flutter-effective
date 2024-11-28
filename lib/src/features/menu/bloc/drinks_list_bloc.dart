@@ -27,7 +27,7 @@ class DrinksListBloc extends Bloc<DrinksListEvent, DrinksListState> {
         emit(DrinksListLoaded(
           drinks: drinks,
           sections: sections,
-          cartItems: [],
+          cartItems: const [],
           totalCost: calculatedTotalCost,
         ));
       } catch (error) {
