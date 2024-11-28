@@ -53,7 +53,17 @@ class ApiService {
     try {
       var response = await _dio.get(
           'https://coffeeshop.academy.effective.band/api/v1/locations/?page=0&limit=25');
-      if (response.data == 200) {}
+      if (response.data == 200) {
+        List<dynamic> data = response.data['data'];
+        List<Location> locations = data.map((item) {
+          return Location(
+              address: item['adress'], lat: item['lat'], lng: item['lng']);
+        }).toList();
+
+        return locations;
+      } else {
+        throw Exception("Cant parse locations");
+      }
     } catch (e) {
       throw Exception("Error");
     }
