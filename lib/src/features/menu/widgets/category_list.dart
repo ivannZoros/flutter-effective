@@ -21,7 +21,7 @@ class CategoryList extends StatelessWidget {
       'Авторские напитки',
     ];
 
-    return SizedBox(
+    return Expanded(
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: choiceChipLabels.length,

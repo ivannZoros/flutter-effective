@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../api/api_service.dart';
 import '../../theme/app_colors.dart';
 import 'bloc/drinks_list_bloc.dart';
+import 'bloc/map_bloc.dart';
 import 'bloc/order_bloc.dart';
 import 'models/section.dart';
 import 'widgets/category_list.dart';
 import 'widgets/coffee_card.dart';
+import 'widgets/map_screen.dart';
 import 'widgets/order_summary_sheet.dart';
 import 'widgets/shopping_cart.dart';
 import 'widgets/sticky_header_delegate.dart';
@@ -30,6 +32,8 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
+
+    context.read<MapBloc>().add(LoadSavedLocation());
     context.read<DrinksListBloc>().add(LoadDrinksList());
 
     _scrollController.addListener(() {
@@ -126,12 +130,45 @@ class _MenuScreenState extends State<MenuScreen> {
                     slivers: <Widget>[
                       SliverPersistentHeader(
                         delegate: StickyHeaderDelegate(
-                          height: 80,
-                          child: CategoryList(
-                            selectedIndex: _currentCategoryIndex,
-                            onCategorySelected: (index) {
-                              _scrollToCategory(index, sections);
-                            },
+                          height: 120,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.black,
+                                    minimumSize: const Size.fromHeight(50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const MapScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Выбрать адрес на карте',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CategoryList(
+                                selectedIndex: _currentCategoryIndex,
+                                onCategorySelected: (index) {
+                                  _scrollToCategory(index, sections);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                         pinned: true,
@@ -194,8 +231,6 @@ class _MenuScreenState extends State<MenuScreen> {
                 ],
               ),
             );
-          } else if (state is DrinksListError) {
-            return Center(child: Text(state.message));
           }
           return const SizedBox.shrink();
         },
